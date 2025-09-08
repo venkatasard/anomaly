@@ -1,0 +1,26 @@
+[project]
+name = "anomaly-api"
+version = "1.0.0"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi>=0.115,<1", "uvicorn[standard]>=0.30,<1", "sqlalchemy[asyncio]>=2.0,<3",
+  "asyncpg>=0.29,<1", "alembic>=1.13,<2", "pgvector>=0.3,<1", "pydantic-settings>=2.4,<3",
+  "aiokafka>=0.11,<1", "redis>=5,<6", "google-genai>=1.30,<2", "numpy>=2,<3",
+  "python-jose[cryptography]>=3.3,<4", "passlib[bcrypt]>=1.7,<2", "httpx>=0.27,<1"
+]
+[project.optional-dependencies]
+dev = ["pytest>=8,<9", "pytest-asyncio>=0.24,<1", "ruff>=0.6,<1"]
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+ignore = ["B008", "BLE001", "FURB162", "I001"]
+
+[build-system]
+requires = ["setuptools>=70"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["app*"]
