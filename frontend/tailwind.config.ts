@@ -1,0 +1,1 @@
+import type {Config} from "tailwindcss"; export default {darkMode:["class"],content:["./app/**/*.{ts,tsx}","./components/**/*.{ts,tsx}"],theme:{extend:{colors:{bg:"#080b10",panel:"#0e131b",line:"#202936",muted:"#8a97a8",brand:"#a3ff3f",cyan:"#54d6ff"},fontFamily:{sans:["var(--font-inter)","sans-serif"],mono:["var(--font-mono)","monospace"]}}},plugins:[]} satisfies Config;

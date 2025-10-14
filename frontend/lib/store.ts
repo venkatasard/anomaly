@@ -1,0 +1,1 @@
+import {create} from "zustand"; type Event={type:string;data:Record<string,unknown>}; interface State{connected:boolean;events:Event[];setConnected:(x:boolean)=>void;push:(e:Event)=>void} export const useLiveStore=create<State>(set=>({connected:false,events:[],setConnected:connected=>set({connected}),push:e=>set(s=>({events:[e,...s.events].slice(0,100)}))}));
