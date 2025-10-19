@@ -1,0 +1,22 @@
+"use client";
+import {Area,AreaChart,CartesianGrid,ResponsiveContainer,Tooltip,XAxis,YAxis} from "recharts";
+import {Clock,Flame,Radio,ShieldCheck} from "lucide-react";
+import {useLiveStore} from "@/lib/store";
+import type {Analytics,Service} from "@/lib/types";
+
+const series=Array.from({length:32},(_,i)=>({time:`${i}m`,latency:180+Math.sin(i/3)*28+(i>23&&i<28?i*22:0),errors:12+(i*7)%9+(i>23&&i<28?70:0)}));
+
+export function Dashboard({analytics,services}:{analytics:Analytics;services:Service[]}){
+  const events=useLiveStore(s=>s.events);
+  const demo=Array.from({length:8},(_,i)=>({type:i%3===0?"anomaly-alerts":"telemetry-events",data:{service:services[i%Math.max(services.length,1)]?.name||"payments-api",metric:i%3===0?"latency":"throughput",value:200+i*73}}));
+  const feed:(typeof events[number])[] = events.length?events:demo;
+  const cards=[{title:"Health score",value:"94.2",icon:ShieldCheck},{title:"Throughput",value:"18.4k/s",icon:Radio},{title:"Error rate",value:"1.84%",icon:Flame},{title:"Avg latency",value:"247 ms",icon:Clock}];
+  return <div className="grid-bg min-h-[calc(100vh-4rem)] p-7">
+    <div className="mb-6 flex items-end justify-between"><div><h1 className="text-2xl font-semibold">System overview</h1><p className="mt-1 text-sm text-muted">Live operational posture across {services.length} active services</p></div><span className="pill border-brand/20 bg-brand/5 text-brand"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand"/>All systems streaming</span></div>
+    <div className="grid grid-cols-4 gap-4">{cards.map(({title,value,icon:Icon})=><div className="panel p-4" key={title}><div className="flex items-center justify-between"><span className="label">{title}</span><Icon size={16} className="text-muted"/></div><div className="mt-3 font-mono text-2xl font-semibold">{value}</div></div>)}</div>
+    <div className="mt-4 grid grid-cols-[1fr_340px] gap-4"><div className="panel p-5"><div className="label">Signal activity</div><h2 className="mt-1 font-medium">Latency and error volume</h2><div className="mt-5 h-72"><ResponsiveContainer><AreaChart data={series}><CartesianGrid stroke="#202936" vertical={false}/><XAxis dataKey="time" tick={{fill:"#64748b",fontSize:10}} axisLine={false}/><YAxis tick={{fill:"#64748b",fontSize:10}} axisLine={false}/><Tooltip contentStyle={{background:"#0e131b",border:"1px solid #202936"}}/><Area type="monotone" dataKey="latency" stroke="#54d6ff" fill="#54d6ff18" strokeWidth={2}/><Area type="monotone" dataKey="errors" stroke="#fb923c" fill="transparent"/></AreaChart></ResponsiveContainer></div></div>
+      <div className="panel overflow-hidden"><div className="border-b border-line p-4"><div className="label">Live event feed</div><h2 className="mt-1 font-medium">Incoming signals</h2></div><div className="scrollbar h-[324px] overflow-y-auto">{feed.map((event,i)=>{const data=event.data as Record<string,unknown>;return <div className="border-b border-line/70 p-3 text-xs" key={i}><div className="flex justify-between"><span className={event.type.includes("anomaly")?"text-orange-400":"text-cyan"}>{event.type.includes("anomaly")?"ANOMALY":"METRIC"}</span><span className="text-muted">now</span></div><div className="mt-1 truncate text-slate-300">{String(data.service)} · {String(data.metric||data.reason||"event received")}</div></div>})}</div></div></div>
+    <div className="mt-4 grid grid-cols-2 gap-4"><div className="panel p-5"><div className="label">Service health</div><div className="mt-4 space-y-3">{services.map(s=><div key={s.id} className="grid grid-cols-[1fr_100px_42px] items-center gap-3 text-sm"><span>{s.display_name}</span><div className="h-1.5 rounded bg-white/5"><div className={s.health_score<90?"h-full rounded bg-orange-400":"h-full rounded bg-brand"} style={{width:`${s.health_score}%`}}/></div><span className="font-mono text-xs text-muted">{s.health_score.toFixed(0)}%</span></div>)}</div></div><div className="panel p-5"><div className="label">30-day intelligence</div><div className="mt-5 grid grid-cols-3 gap-4"><Stat value={analytics.anomalies} label="Anomalies"/><Stat value={analytics.incidents} label="Incidents"/><Stat value={`${analytics.mttr_minutes}m`} label="Mean resolution"/></div></div></div>
+  </div>
+}
+function Stat({value,label}:{value:string|number;label:string}){return <div><div className="font-mono text-2xl">{value}</div><div className="mt-1 text-xs text-muted">{label}</div></div>}
