@@ -1,0 +1,1 @@
+import {PageHead,SearchPage} from "@/components/data-pages";export default function Page(){return <div className="p-7"><PageHead title="Evidence search" sub="Semantically retrieve logs and discover related investigations"/><SearchPage/></div>}
